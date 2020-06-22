@@ -1,0 +1,18 @@
+{
+    "manufacturer": "Monoprice",
+    "supportedModels": [
+      "15374"
+    ],
+    "supportedController": "ESPHome",
+    "commandsEncoding": "Raw",
+    "commands": {
+        "Next Source": "9259, -2209, 630",
+        "sources": {
+            "Input 1": "9298, -2210, 631",
+            "Input 2": "9274, -2211, 630",
+            "Input 3": "9281, -2211, 630",
+            "Input 4": "9244, -2210, 628",
+            "Input 5": "9258, -2211, 628",
+        }
+    }
+}
