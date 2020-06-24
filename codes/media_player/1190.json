@@ -1,0 +1,18 @@
+{
+  "manufacturer": "Monoprice",
+  "supportedModels": [
+    "15374"
+  ],
+  "supportedController": "ESPHome",
+  "commandsEncoding": "NEC",
+  "commands": {
+    "Next Source": ["0x40BF","0x9B64"],
+    "sources": {
+      "HDMI1": ["0x40BF","0x7B84"],
+      "HDMI2": ["0x40BF","0x5BA4"],
+      "HDMI3": ["0x40BF","0xDB24"],
+      "HDMI4": ["0x40BF","0xAA55"],
+      "HDMI5": ["0x40BF","0xFB04"]
+    }
+  }
+}

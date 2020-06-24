@@ -19,12 +19,13 @@ ENC_BASE64 = 'Base64'
 ENC_HEX = 'Hex'
 ENC_PRONTO = 'Pronto'
 ENC_RAW = 'Raw'
+ENC_NEC = 'NEC'
 
 BROADLINK_COMMANDS_ENCODING = [ENC_BASE64, ENC_HEX, ENC_PRONTO]
 XIAOMI_COMMANDS_ENCODING = [ENC_PRONTO, ENC_RAW]
 MQTT_COMMANDS_ENCODING = [ENC_RAW]
 LOOKIN_COMMANDS_ENCODING = [ENC_PRONTO, ENC_RAW]
-ESPHOME_COMMANDS_ENCODING = [ENC_RAW]
+ESPHOME_COMMANDS_ENCODING = [ENC_RAW, ENC_NEC]
 
 class Controller():
     def __init__(self, hass, controller, encoding, controller_data):
@@ -121,9 +122,16 @@ class Controller():
             )
 
         if self._controller == ESPHOME_CONTROLLER:
-            service_data = {
-                'command':  json.loads(command)
-            }
+            if self._encoding == ENC_HEX:
+                service_data = {
+                    'command':  json.loads(command)
+                }
+
+            if self._encoding == ENC_NEC:
+                service_data = {
+                    'address':  int(json.loads(command)[0],16),
+                    'command':  int(json.loads(command)[1],16)
+                }
 
             await self.hass.services.async_call(
                'esphome', self._controller_data, service_data)
