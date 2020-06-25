@@ -3,6 +3,7 @@ import binascii
 import requests
 import logging
 import json
+import irgen
 
 from homeassistant.const import ATTR_ENTITY_ID
 from . import Helper
@@ -25,12 +26,12 @@ BROADLINK_COMMANDS_ENCODING = [ENC_BASE64, ENC_HEX, ENC_PRONTO]
 XIAOMI_COMMANDS_ENCODING = [ENC_PRONTO, ENC_RAW]
 MQTT_COMMANDS_ENCODING = [ENC_RAW]
 LOOKIN_COMMANDS_ENCODING = [ENC_PRONTO, ENC_RAW]
-ESPHOME_COMMANDS_ENCODING = [ENC_RAW, ENC_NEC]
+ESPHOME_COMMANDS_ENCODING = [ENC_RAW, ENC_NEC, ENC_BASE64, ENC_PRONTO]
 
 class Controller():
     def __init__(self, hass, controller, encoding, controller_data):
         if controller not in [
-            BROADLINK_CONTROLLER, XIAOMI_CONTROLLER, 
+            BROADLINK_CONTROLLER, XIAOMI_CONTROLLER,
             MQTT_CONTROLLER, LOOKIN_CONTROLLER, ESPHOME_CONTROLLER]:
             raise Exception("The controller is not supported.")
 
@@ -122,7 +123,7 @@ class Controller():
             )
 
         if self._controller == ESPHOME_CONTROLLER:
-            if self._encoding == ENC_HEX:
+            if self._encoding == ENC_RAW:
                 service_data = {
                     'command':  json.loads(command)
                 }
@@ -132,6 +133,25 @@ class Controller():
                     'address':  int(json.loads(command)[0],16),
                     'command':  int(json.loads(command)[1],16)
                 }
+
+            if self._encoding == ENC_HEX:
+                try:
+                    command = binascii.unhexlify(command)
+                    command = b64encode(command).decode('utf-8')
+                except:
+                    raise Exception("Error while converting "
+                                    "Hex to Base64 encoding")
+
+            if self._encoding == ENC_PRONTO:
+                try:
+                    command = command.replace(' ', '')
+                    command = bytearray.fromhex(command)
+                    command = Helper.pronto2lirc(command)
+                    command = Helper.lirc2broadlink(command)
+                    command = b64encode(command).decode('utf-8')
+                except:
+                    raise Exception("Error while converting "
+                                    "Pronto to Base64 encoding")
 
             await self.hass.services.async_call(
                'esphome', self._controller_data, service_data)
